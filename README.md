@@ -1,4 +1,4 @@
-# Ansible Dev Setup 🐧
+# Ansible Dev Setup - Kubuntu 🐧
 
 This repository contains Ansible playbooks to install the necessary tools I find useful for
 working as a Software Engineer on my Linux machine.
@@ -46,6 +46,10 @@ GUI shell customization assumes you're using KDE on desktop Linux.
 ```shell
 $ sudo ansible-playbook main.yaml
 ```
+
+# Tags
+
+`#java` `#bash` `#kubuntu` `#docker` `#maven` `#git` `#bash-it` `#sdkman` `#linuxbrew`
 
 # Credits
 
