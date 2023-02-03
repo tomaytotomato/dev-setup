@@ -1,0 +1,79 @@
+- name: Install Jetbrains
+  hosts: localhost
+  connection: local
+  vars:
+    toolbox_version: "1.27.2.13801"
+    toolbox_install_dir: "/opt"
+    toolbox_install_for_user: ""
+    inotify_max_user_watches: "524288"
+    application_name: "JetBrains Toolbox"
+    toolbox_install_file: "jetbrains-toolbox"
+    archive_file_name: "{{ toolbox_install_file }}-{{ toolbox_version }}.tar.gz"
+    download_url: "https://download.jetbrains.com/toolbox/{{ archive_file_name }}"
+    temporary_file_name: "/tmp/{{ archive_file_name }}"
+    toolbox_install_path: "{{ toolbox_install_dir }}/{{ toolbox_install_file }}"
+  tasks:
+    - name: "Check if {{ application_name }} is installed"
+      find:
+        name: "{{ toolbox_install_dir }}"
+        file_type: "file"
+        pattern: "{{ toolbox_install_file }}"
+        use_regex: false
+        recurse: true
+        depth: 2
+      register: is_installed
+
+    - name: "Check for multiple installations"
+      fail:
+        msg: "Warning: {{ is_installed.matched }} installations found in {{ toolbox_install_dir }}! Please, fix it manually."
+      failed_when: is_installed.matched > 1
+
+    - name: "Installation process"
+      block:
+        - name: "Download {{ application_name }} of version {{ toolbox_version }}"
+          get_url:
+            url: "{{ download_url }}"
+            dest: "{{ temporary_file_name }}"
+
+        - name: "Install to {{ toolbox_install_dir }}"
+          unarchive:
+            remote_src: true
+            src: "{{ temporary_file_name }}"
+            dest: "{{ toolbox_install_dir }}"
+
+        - name: "Move executable from the folder"
+          copy:
+            src: "{{ toolbox_install_dir }}/{{ toolbox_install_file }}-{{ toolbox_version }}/{{ toolbox_install_file }}"
+            dest: "{{ toolbox_install_path }}"
+            remote_src: true
+            owner: "root"
+            group: "root"
+            mode: '0777'
+
+        - name: "Remove temporary folders and files"
+          file:
+            name: "{{ item }}"
+            state: "absent"
+          with_items:
+            - "{{ toolbox_install_dir }}/{{ toolbox_install_file }}-{{ toolbox_version }}"
+            - "{{ temporary_file_name }}"
+
+        - name: "Run as user to finish installation"
+          command: "{{ toolbox_install_path }}"
+          become: true
+          become_user: "{{ toolbox_install_for_user }}"
+          when: toolbox_install_for_user | length
+
+        - name: Reminder how to launch
+          debug:
+            msg: |
+              For {{ application_name }}, you have to run {{ toolbox_install_path }}
+               manually for the first time.
+          when: not( toolbox_install_for_user | length )
+      when: is_installed.matched == 0
+
+    - name: Set Inotify Watches Limit
+      sysctl: name="fs.inotify.max_user_watches"
+        value="{{ inotify_max_user_watches }}"
+        state="present"
+        reload="yes"

@@ -1,0 +1,19 @@
+- name: Snap
+  hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+    - name: Snap refresh
+      command: snap refresh
+
+    - name: Install Snapd
+      command: snap install snapd
+
+    - name: Install Snap core
+      command: snap install core
+
+    - name: Add /snap/bin to PATH
+      lineinfile:
+        path: ~/.bashrc
+        line: export PATH=$PATH:/snap/bin

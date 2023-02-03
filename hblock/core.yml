@@ -1,0 +1,41 @@
+- name: Install HBlock tool for hosts (privacy, trackers, spyware)
+  hosts: localhost
+  connection: local
+  become: yes
+  vars:
+    - hblock_url: "https://raw.githubusercontent.com/hectorm/hblock/v3.4.1/hblock"
+    - hblock_download_path: "/tmp/hblock"
+    - hblock_checksum: "sha1: 71ef449c4505181517bae0fbf8506b7f9f63e643"
+    - hblock_install_path: "/usr/local/bin/hblock"
+
+  tasks:
+    - name: Check if Hblock is installed
+      stat:
+        path: " {{ hblock_install_path }}"
+      register: hblock
+
+    - name: Download HBlock and verify checksum
+      get_url:
+        url: "{{ hblock_url }}"
+        dest: "{{ hblock_download_path }}"
+        checksum: "{{ hblock_checksum }}"
+        mode: 0750
+      when: not hblock.stat.exists
+
+    - name: "Install HBlock to {{ hblock_install_path }}"
+      copy:
+        src: "{{ hblock_download_path }}"
+        dest: "{{ hblock_install_path }}"
+      when: not hblock.stat.exists
+
+    - name: Set HBlock permissions
+      file:
+        path: "{{ hblock_install_path }}"
+        owner: "0"
+        group: "0"
+        mode: 0755
+
+    - name: Copy blocked domains (social, trackers, xxx)
+      copy:
+        src: "hosts.deny"
+        dest: /etc/hosts.deny

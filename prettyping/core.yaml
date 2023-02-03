@@ -1,0 +1,10 @@
+- name: prettyping
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Install prettyping
+      get_url:
+        url: https://raw.githubusercontent.com/denilsonsa/prettyping/master/prettyping
+        dest: ~/bin/prettyping
+        mode: 0755
