@@ -14,7 +14,7 @@
 ##### Operating system packages and configuration
 
 - import_playbook: customization-text.yaml
-- import_playbook: customization-ui.yaml
+- import_playbook: kde.yaml
 
 ##### Developer tools
 
