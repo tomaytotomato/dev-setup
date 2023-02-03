@@ -1,0 +1,105 @@
+- name: Bash Customization
+  hosts: localhost
+  connection: local
+  vars:
+    repository: https://github.com/bash-it/bash-it.git
+    version: master
+    theme: pure
+    aliases:
+      - general
+      - vim
+      - git
+      - maven
+      - docker-compose
+      - docker
+      - curl
+      - npm
+    plugins:
+      - base
+      - alias-completion
+      - brew
+      - git
+      - nvm
+      - sdkman
+      - ansible
+      - progress
+    completions:
+      - bash-it
+      - brew
+      - system
+      - docker-compose
+      - git
+      - sdkman
+      - nvm
+      - npm
+      - maven
+    user: "{{ ansible_user_id }}"
+  tasks:
+    - name: detect Linux variables
+      import_tasks: linux_vars.yml
+      when: ansible_os_family != "Darwin"
+
+    - name: assert home directory is detected
+      assert: { that: user_home | length > 0 }
+
+    - name: assert current shell is detected
+      assert: { that: user_shell | length > 0 }
+
+    - name: clone bash_it for {{ user }}
+      git:
+        repo: "{{ repository }}"
+        dest: "{{ user_home }}/.bash_it"
+        version: "{{ version }}"
+      become: yes
+      become_user: "{{ user }}"
+
+    - name: .bash_profile loads .bashrc for {{ user }}
+      blockinfile:
+        dest: "{{ user_home }}/.bash_profile"
+        create: yes
+        owner: "{{ user }}"
+        block: |
+          if [ -f ~/.bashrc ]; then
+            source ~/.bashrc
+          fi
+    - name: change shell to bash for {{ user }}
+      command: "chsh -s /bin/bash {{ user }}"
+      become: yes
+      become_user: root
+      when: user_shell != "/bin/bash"
+
+    - name: install bash_it on .bashrc for {{ user }}
+      lineinfile:
+        dest: "{{ user_home }}/.bashrc"
+        create: yes
+        owner: "{{ user }}"
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      with_items:
+        - { regexp: '^export BASH_IT=', line: 'export BASH_IT="$HOME/.bash_it"' }
+        - { regexp: '^export BASH_IT_THEME=', line: 'export BASH_IT_THEME={{ theme }}' }
+        - { regexp: '^source \$BASH_IT', line: 'source $BASH_IT/bash_it.sh' }
+
+    - name: install bash_it plugins for {{ user }}
+      command: "/bin/bash -i -l -c \"bash-it enable plugin {{ plugins|join(' ') }}\""
+      become: yes
+      become_user: "{{ user }}"
+      when: plugins is defined
+      register: plugins_result
+      changed_when: "plugins_result.stdout_lines | reject('match', '.* is already enabled.') | list | length > 0"
+
+    - name: install bash_it aliases for {{ user }}
+      command: "/bin/bash -i -l -c \"bash-it enable alias {{ aliases|join(' ') }}\""
+      become: yes
+      become_user: "{{ user }}"
+      when: aliases is defined
+      register: aliases_result
+      changed_when: "aliases_result.stdout_lines | reject('match', '.* is already enabled.') | list | length > 0"
+
+    - name: install bash_it completions for {{ user }}
+      command: "/bin/bash -i -l -c \"bash-it enable completion {{ completions|join(' ') }}\""
+      become: yes
+      become_user: "{{ user }}"
+      when: completions is defined
+      register: completions_result
+      changed_when: "completions_result.stdout_lines | reject('match', '.* is already enabled.') | list | length > 0"

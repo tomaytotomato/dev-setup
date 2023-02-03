@@ -1,5 +1,5 @@
-- name: Install node.js
-  hosts: all
+- name: Install Node Version Manager (NVM)
+  hosts: localhost
   tasks:
     - name: Install Node Version Manager (nvm)
       become: no

@@ -1,0 +1,11 @@
+---
+- name: Query shell and home directory for {{ user }}
+  command: >
+    getent passwd {{ user }}
+  changed_when: false
+  register: linux_passwd
+
+- name: Set facts
+  set_fact:
+    user_home: "{{ linux_passwd.stdout.split(':')[5] }}"
+    user_shell: "{{ linux_passwd.stdout.split(':')[6] }}"
