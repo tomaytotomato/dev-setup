@@ -1,0 +1,22 @@
+- name: git
+  hosts: localhost
+  connection: local
+
+  vars:
+    linux_git_packages:
+      - git
+      - git-gui
+      - git-lfs
+      - gitk
+
+  tasks:
+    - name: Install Git and tools
+      become: yes
+      apt:
+        package: "{{ item }}"
+      loop: "{{ linux_git_packages }}"
+
+    - name: "Install ripgrep"
+      become: yes
+      apt:
+        package: ripgrep

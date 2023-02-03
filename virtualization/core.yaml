@@ -1,0 +1,34 @@
+- name: Virtualization
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - set_fact: is_wsl={{ lookup('file', '/proc/version') is regex('(M|m)icrosoft') }}
+
+    # Linux
+
+    - name: "Test for hypervisor"
+      shell: dmesg | grep -i "hypervisor detected" || true
+      register: hypervisor
+      when: not is_wsl
+
+    - name: "Install QEMU/KVM"
+      become: yes
+      apt:
+        package: "{{ item }}"
+      loop:
+        - bridge-utils
+        - libvirt-clients
+        - libvirt-daemon-system
+        - ovmf
+        - qemu-kvm
+        - virt-manager
+      when: not is_wsl and hypervisor.stdout == ""
+
+    - name: "Enable QEMU/KVM for current user"
+      become: yes
+      user:
+        name={{ lookup('env', "USER") }}
+        groups=libvirt
+        append=yes
+      when: not is_wsl and hypervisor.stdout == ""

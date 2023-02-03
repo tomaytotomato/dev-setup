@@ -1,0 +1,101 @@
+- name: Linuxbrew
+  hosts: localhost
+  connection: local
+  vars:
+    # Path to user home directory
+    linuxbrew_home: "{{ ansible_env.HOME }}"
+
+    # Installation under user home directory
+    linuxbrew_prefix_user: "{{ linuxbrew_home }}/.linuxbrew"
+
+    # Install using the installer script
+    linuxbrew_use_installer: false
+
+    # Configure shell rc files
+    linuxbrew_init_shell: true
+    linuxbrew_prefix_shared: "/home/linuxbrew/.linuxbrew"
+    # Brew Git repository
+    linuxbrew_brew_repo: https://github.com/Homebrew/brew
+    linuxbrew_brew_version: master
+    linuxbrew_core_tap_repo: https://github.com/Homebrew/linuxbrew-core
+    linuxbrew_core_tap_version: master
+
+    # Linuxbrew installer script
+    linuxbrew_install_tmp: "/tmp/linuxbrew"
+    linuxbrew_install_url: "https://raw.githubusercontent.com/Homebrew/install/master/install.sh"
+  tasks:
+
+    - name: Install dependencies with APT
+      apt:
+        name: "{{ linuxbrew_install_dependencies }}"
+      when: linuxbrew_install_dependencies is defined
+      become: true
+
+    - name: Check if Linuxbrew is already installed in {{ linuxbrew_prefix_shared }}
+      stat:
+        path: "{{ linuxbrew_prefix_shared }}/bin/brew"
+      register: linuxbrew_shared_st
+      become: true
+
+    - name: Check if Linuxbrew is already installed in {{ linuxbrew_prefix_user }}
+      stat:
+        path: "{{ linuxbrew_prefix_user }}/bin/brew"
+      register: linuxbrew_user_st
+      become: false
+
+    - name: Temporary directory
+      file:
+        path: "{{ linuxbrew_install_tmp }}"
+        state: directory
+      become: false
+
+    - name: Download Linuxbrew install script
+      get_url:
+        url: "{{ linuxbrew_install_url }}"
+        dest: "{{ linuxbrew_install_tmp }}/install.sh"
+        mode: 0777
+      become: false
+
+    - name: Install Linuxbrew
+      command: sh -c "{{ linuxbrew_install_tmp }}/install.sh NONINTERACTIVE=1"
+      register: install_result
+      changed_when: "install_result.rc == 0"
+      become: false
+
+    - name: Remove temporary directory
+      file:
+        path: "{{ linuxbrew_install_tmp }}"
+        state: absent
+      become: true
+
+    - name: Set path to Linuxbrew prefix
+      set_fact:
+        linuxbrew_prefix: "{{ item }}"
+      with_first_found:
+        - "{{ linuxbrew_prefix_shared }}"
+        - "{{ linuxbrew_prefix_user }}"
+      become: true
+
+    - name: Set path to .bashrc
+      set_fact:
+        linuxbrew_bashrc_path: "{{ linuxbrew_home }}/.bashrc"
+      when: linuxbrew_bashrc_path is undefined
+
+    - name: Check whether .bashrc file exists
+      stat:
+        path: "{{ linuxbrew_bashrc_path }}"
+      register: linuxbrew_bashrc_st
+
+    - name: Resolve .bashrc symlink
+      set_fact:
+        linuxbrew_bashrc_path: "{{ linuxbrew_bashrc_st.stat.lnk_source }}"
+      when: linuxbrew_bashrc_st.stat.exists and linuxbrew_bashrc_st.stat.islnk
+
+    - name: Load Linuxbrew in .bashrc
+      blockinfile:
+        dest: "{{ linuxbrew_bashrc_path }}"
+        marker: "# {mark} ANSIBLE MANAGED BLOCK: linuxbrew"
+        block: |
+          eval $({{ linuxbrew_prefix }}/bin/brew shellenv)
+      when: linuxbrew_bashrc_st.stat.exists
+

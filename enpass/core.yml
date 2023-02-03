@@ -1,0 +1,22 @@
+- name: Enpass Password Manager
+  hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+    - name: Enpass - repository key exists?
+      apt_key:
+        url: https://apt.enpass.io/keys/enpass-linux.key
+        state: present
+
+    - name: Enpass - APT repository exists?
+      apt_repository:
+        repo: "deb https://apt.enpass.io/ stable main"
+        state: present
+        filename: enpass
+
+    - name: Enpass - install
+      apt:
+        name: enpass
+        state: present
+        update_cache: true

@@ -1,0 +1,19 @@
+- name: Remmina
+  hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+    - name: Remmina - snap install
+      command: snap install remmina
+
+    - name: Remmina - snap fixes
+      command: "{{ item }}"
+      loop:
+        - sudo snap connect remmina:avahi-observe :avahi-observe # servers discovery
+        - sudo snap connect remmina:cups-control :cups-control # printing
+        - sudo snap connect remmina:mount-observe :mount-observe # mount management
+        - sudo snap connect remmina:password-manager-service :password-manager-service # password manager
+        - sudo snap connect remmina:audio-playback :audio-playback # audio sharing
+        - sudo snap connect remmina:audio-record :audio-record # microphone
+

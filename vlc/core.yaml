@@ -1,0 +1,9 @@
+- name: VLC
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Install VLC
+      become: yes
+      apt:
+        package: vlc

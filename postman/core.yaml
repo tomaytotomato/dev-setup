@@ -1,0 +1,8 @@
+- name: Postman
+  hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+    - name: POSTman - snap install
+      command: snap install postman

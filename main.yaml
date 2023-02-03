@@ -1,0 +1,35 @@
+#########################################################################################
+#
+#  Ansible Dev Machine Setup - Kubuntu
+#  Order of imports is important!
+#
+#########################################################################################
+
+- name: Configure machine for development work
+  hosts: localhost
+  connection: local
+
+##### Core tools that are missing from Kubuntu
+
+- import_playbook: core.yaml
+
+##### Developer tools
+
+- import_playbook: snap/core.yaml
+- import_playbook: flameshot/core.yaml
+- import_playbook: git/core.yaml
+- import_playbook: nodejs/core.yaml
+- import_playbook: postman/core.yaml
+- import_playbook: prettyping/core.yaml
+- import_playbook: remmina/core.yaml
+- import_playbook: slack/core.yaml
+- import_playbook: vlc/core.yaml
+- import_playbook: enpass/core.yml
+- import_playbook: sdkman/core.yml
+- import_playbook: linuxbrew/core.yml
+- import_playbook: hblock/core.yml
+
+##### Final tasks
+
+# Requires SDKMan
+- import_playbook: java/core.yml

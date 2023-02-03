@@ -1,0 +1,238 @@
+- name: Core OS customization (terminal)
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Remove old common bash aliases
+      blockinfile:
+        path: ~/.bashrc
+        marker: "### {mark} Ansible managed: Bash aliases (common)"
+        state: absent
+
+    - name: Remove old Linux bash aliases
+      blockinfile:
+        path: ~/.bashrc
+        marker: "### {mark} Ansible managed: Bash aliases (Linux)"
+        state: absent
+
+    - name: Add bash aliases
+      blockinfile:
+        path: ~/.bashrc
+        marker: "### {mark} Ansible managed: Bash aliases"
+        block: |
+          alias diff='colordiff'
+          alias dir='ls -lA'
+          alias ll='ls -l'
+
+          alias ..='cd ..'
+          alias ...='cd ../..'
+          alias ....='cd ../../..'
+          alias .....='cd ../../../..'
+          alias ......='cd ../../../../..'
+
+          alias clip='xclip -selection clipboard'
+          alias grep='grep --color=auto'
+          alias ls='ls -Fh --color'
+
+          alias gpg-stop='gpgconf --kill gpg-agent'
+
+    - name: Install APT packages
+      become: yes
+      apt:
+        package: "{{ item }}"
+      loop:
+        - colordiff
+        - fortune
+        - neofetch
+
+    - name: Ensure neofetch configuration folder exists
+      file:
+        path: ~/.config/neofetch
+        state: directory
+
+    - name: Override neofetch configuration
+      copy:
+        dest: ~/.config/neofetch/config
+        mode: 0755
+        content: |
+          print_info() {
+              info title
+
+              prin ""
+
+              info "OS" distro
+              info "Kernel" kernel
+              info "Uptime" uptime
+              info "IP" local_ip
+
+              prin ""
+
+              info "Host" model
+              info "CPU" cpu
+              info "Memory" memory
+              info "GPU" gpu
+              info "Screens" resolution
+              info "Disk" disk
+              info "Battery" battery
+          }
+
+          cpu_temp="C"
+          refresh_rate="on"
+          block_range=(0 15)
+          cpu_display="infobar"
+          memory_display="infobar"
+          battery_display="infobar"
+          disk_display="infobar"
+          thumbnail_dir="${XDG_CACHE_HOME:-${HOME}/.cache}/thumbnails/neofetch"
+
+    - name: Add neofetch & fortune to ~/.bashrc
+      blockinfile:
+        path: ~/.bashrc
+        marker: "### {mark} Ansible managed: login banner"
+        block: |
+          echo ""
+          neofetch
+          fortune
+
+    - name: Disable sudo password requirement
+      become: yes
+      lineinfile:
+        path: /etc/sudoers
+        line: "{{ lookup('env', 'USER') }} ALL=(ALL) NOPASSWD: ALL"
+
+    - name: Enhance terminal prompt
+      blockinfile:
+        path: ~/.bashrc
+        marker: "### {mark} Ansible managed: prompt enhancement"
+        block: |
+          if [ -z "$WSL_DISTRO_NAME" ]; then
+            # Write current path in the terminal title bar
+            function writeCwdInTitlebar() {
+              case "$TERM" in
+                xterm*|rxvt*)
+                  echo -ne "\033]0;`whoami`@`hostname`: `dirs +0`\007\c"
+                  ;;
+                *)
+                  ;;
+              esac
+            }
+          else
+            # Write current path in the terminal title bar
+            function writeCwdInTitlebar() {
+              case "$TERM" in
+                xterm*|rxvt*)
+                  echo -ne "\033]0;[WSL] $WSL_DISTRO_NAME: `dirs +0`\007\c"
+                  ;;
+                *)
+                  ;;
+              esac
+            }
+
+            # Set up support for X server in WSL if we don't have the built-in Wayland support
+            if [ -z "${WAYLAND_DISPLAY}" ]; then
+              export WSL_HOST_IP="$(cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}')"
+              export DISPLAY="${WSL_HOST_IP}:0.0"
+            fi
+          fi
+
+          # Force newline when things don't end cleanly
+          clear_newline() {
+            if [ "$(__get_terminal_column)" != 0 ]; then
+              echo -e '\033[7m%\033[0m'
+            fi
+            echo ""
+          }
+
+          __get_terminal_column() {
+            exec < /dev/tty
+            local oldstty=$(stty -g)
+            stty raw -echo min 0
+            echo -en "\033[6n" > /dev/tty
+            local pos
+            IFS=';' read -r -d R -a pos
+            stty $oldstty
+            echo "$((${pos[1]} - 1))"
+          }
+
+          PROMPT_COMMAND="clear_newline;writeCwdInTitlebar;"
+
+          # Environment customization
+          export ANSIBLE_NOCOWS=1
+          export CLICOLOR=1
+          export GREP_COLORS='1;35;40'
+          export LSCOLORS=GxFxCxDxBxegedabagaced
+
+          # Create a bunch of symlinks to known things in Google Drive
+          if [ -d ~/gdrive ]; then
+
+            # TODO: How many of these things can/should be raw automated instead of
+            # being pulled from Google Drive?
+
+            if [ ! -e ~/.config/git/config ]; then
+              mkdir -p ~/.config/git
+              chmod 700 ~/.config
+              ln -s $HOME/gdrive/DevBinaries/.config/git/config ~/.config/git
+            fi
+
+            if [ ! -e ~/.docker/config.json ]; then
+              mkdir -p ~/.docker
+              chmod 700 ~/.docker
+              ln -s $HOME/gdrive/DevBinaries/.docker/config.json ~/.docker
+            fi
+
+            if [ ! -e ~/.git-credentials ]; then
+              ln -s $HOME/gdrive/DevBinaries/DotFiles/.git-credentials ~/
+            fi
+
+            if [ ! -d ~/.gnupg ]; then
+              mkdir -p ~/.gnupg
+              chmod 700 ~/.gnupg
+            fi
+
+            ln -fs $HOME/gdrive/DevBinaries/DotFiles/.gnupg/* ~/.gnupg/
+
+            if [ ! -d ~/.kube ]; then
+              mkdir ~/.kube
+            fi
+
+            if [ ! -e ~/.kube/config ]; then
+              ln -s $HOME/gdrive/DevBinaries/DotFiles/.kube/config ~/.kube/
+            fi
+
+            if [ ! -d ~/.kube/ports ]; then
+              ln -s $HOME/gdrive/DevBinaries/DotFiles/.kube/ports ~/.kube/
+            fi
+
+            if [ ! -e ~/.npmrc ]; then
+              ln -s $HOME/gdrive/DevBinaries/DotFiles/.npmrc ~/
+            fi
+
+            if [ ! -e ~/.nuget/NuGet/NuGet.Config ]; then
+              mkdir -p ~/.nuget/NuGet
+              ln -s $HOME/gdrive/DevBinaries/DotFiles/NuGet.Config ~/.nuget/NuGet/
+            fi
+
+            if [ -d ~/gdrive/DevBinaries/.ssh ]; then
+              mkdir -p ~/.ssh
+              chmod 700 ~/.ssh
+              ln -fs $HOME/gdrive/DevBinaries/.ssh/* ~/.ssh/
+              chmod 700 ~/.ssh/* 2>/dev/null
+
+              if [ ! -e ~/.ssh/authorized_keys ]; then
+                ln -s $HOME/gdrive/DevBinaries/.ssh/id_rsa.pub ~/.ssh/authorized_keys
+              fi
+            fi
+
+            if [ -d ~/gdrive/DevBinaries ]; then
+              export PATH=~/gdrive/DevBinaries:$PATH
+            fi
+
+          fi
+
+          # Start in the ~/dev folder when it exists (and we're in an interactive shell)
+          if [ -d ~/dev ]; then
+            case "$-" in
+              *i*) cd ~/dev ;;
+              *)   ;;
+            esac
+          fi

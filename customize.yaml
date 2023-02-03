@@ -1,0 +1,38 @@
+#########################################################################################
+#
+#  Note that import order here is important, so rearranging import lists
+#  is *not* recommended.
+#
+#########################################################################################
+
+- name: Configure machine for development work (with customizations)
+  hosts: localhost
+  connection: local
+
+- import_playbook: main.yaml
+
+##### Operating system packages and configuration
+
+- import_playbook: customization-text.yaml
+- import_playbook: customization-ui.yaml
+
+##### Developer tools
+
+- import_playbook: docker/customization.yaml
+
+- import_playbook: dotnet/customization.yaml
+
+- import_playbook: git/customization.yaml
+
+
+
+- import_playbook: no-screen-blank/core.yaml
+
+- import_playbook: nodejs/customization.yaml
+
+
+
+- import_playbook: ruby/customization.yaml
+
+
+##### Applications (free)

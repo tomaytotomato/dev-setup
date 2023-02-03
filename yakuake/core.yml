@@ -1,0 +1,9 @@
+- name: Yakauke Terminal
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Yakuake Terminal - install
+      apt:
+        name: yakuake
+        state: present
+        update_cache: true

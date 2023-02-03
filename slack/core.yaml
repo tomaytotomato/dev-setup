@@ -1,0 +1,8 @@
+- name: Slack
+  hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+    - name: Slack - install
+      command: snap install slack

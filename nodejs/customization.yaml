@@ -1,0 +1,17 @@
+- name: NodeJS (customization)
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Test for installed NodeJS LTS
+      shell: bash -ic "nvm ls lts/*" >/dev/null
+      register: nvm_ls
+      ignore_errors: yes
+
+    - name: Install NodeJS LTS
+      command: bash -ic "nvm install lts/*"
+      when: nvm_ls.failed
+
+    - name: Use NodeJS LTS by default
+      command: bash -ic "nvm use --lts"
+      when: nvm_ls.failed

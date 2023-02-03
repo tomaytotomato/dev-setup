@@ -1,0 +1,24 @@
+- name: Install Java and Maven using SDKMan
+  hosts: localhost
+  connection: local
+  vars:
+    maven_version: '3.8.7'
+    sdkman_install_dir: '~/.sdkman'
+    sdkman_install_packages:
+       - { candidate: maven, version: '3.8.7' }
+       - { candidate: java, version: '19.0.2-open' }
+
+  tasks:
+    - name: Install SDK candidates/versions
+      shell: >-
+        . {{ sdkman_install_dir }}/bin/sdkman-init.sh &&
+        sdk install {{ item.candidate }} {{ item.version | default('') }} {{ item.localpath | default('') }}
+      args:
+        executable: /bin/bash
+      loop: '{{ sdkman_install_packages }}'
+      register: sdk_install
+      changed_when: >-
+        'is already installed.' not in sdk_install.stdout
+      failed_when: >-
+        sdk_install.rc != 0 and
+        'is already installed.' not in sdk_install.stdout
