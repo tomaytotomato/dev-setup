@@ -33,3 +33,5 @@
 
 # Requires SDKMan
 - import_playbook: java/core.yml
+
+- import_playbook: bash/core.yaml
