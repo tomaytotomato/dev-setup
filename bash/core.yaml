@@ -23,6 +23,8 @@
       - sdkman
       - ansible
       - progress
+      - java
+      - jenv
     completions:
       - bash-it
       - brew
@@ -33,6 +35,8 @@
       - nvm
       - npm
       - maven
+      - java
+      - jenv
     user: "{{ ansible_user_id }}"
   tasks:
     - name: detect Linux variables
