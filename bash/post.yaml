@@ -1,0 +1,13 @@
+- name: Running post script changes for Bash
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Add environment variables to .bashrc
+      ansible.builtin.lineinfile:
+        path: "~/.bashrc"
+        line: "export EDITOR=vim"
+
+    - name: Copy Bash-It custom Aliases to directory
+      copy:
+        src: custom.aliases.bash
+        dest: "~/.bash_it/aliases/"
