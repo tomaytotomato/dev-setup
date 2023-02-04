@@ -37,4 +37,5 @@
 
 ### Customizations
 - import_playbook: bash/core.yaml
+- import_playbook: bash/post.yaml
 - import_playbook: kde.yaml
