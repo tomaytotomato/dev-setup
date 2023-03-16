@@ -43,9 +43,17 @@ GUI shell customization assumes you're using KDE on desktop Linux.
 
 # Running
 
+Since some ansible playbooks will modify at system level, sudo permissions are required.
+Equally though some applications like linuxbrew do not like being installed with sudo permissions.
+
+Therefore there are two stages that need to be run, as below:
+
+- main.yml (system level changes)
+- user.yml (user / home level changes)
+
 ```shell
 $ sudo ansible-playbook main.yaml # needs to be run as sudo
-% ansible-playbook user.yaml
+$ ansible-playbook user.yaml
 ```
 
 # Tags
