@@ -44,7 +44,8 @@ GUI shell customization assumes you're using KDE on desktop Linux.
 # Running
 
 ```shell
-$ sudo ansible-playbook main.yaml
+$ sudo ansible-playbook main.yaml # needs to be run as sudo
+% ansible-playbook user.yaml
 ```
 
 # Tags

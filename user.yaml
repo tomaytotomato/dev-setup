@@ -1,0 +1,23 @@
+#########################################################################################
+#
+#  Ansible Dev Machine Setup - Kubuntu
+#  Playbooks to not run as sudo
+#########################################################################################
+
+- name: Configure machine for development work
+  hosts: localhost
+  connection: local
+
+##### Core tools that are missing from Kubuntu
+
+- import_playbook: linuxbrew/core.yml
+- import_playbook: sdkman/core.yml
+
+
+# Final tasks
+- import_playbook: java/core.yml
+
+### Customizations
+- import_playbook: bash/core.yaml
+- import_playbook: bash/post.yaml
+- import_playbook: kde.yaml

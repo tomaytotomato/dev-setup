@@ -25,17 +25,8 @@
 - import_playbook: slack/core.yaml
 - import_playbook: vlc/core.yaml
 - import_playbook: enpass/core.yml
-- import_playbook: sdkman/core.yml
-- import_playbook: linuxbrew/core.yml
 - import_playbook: hblock/core.yml
-
+- import_playbook: yakuake/core.yml
+- import_playbook: jetbrains/core.yml
 
 ##### Final tasks
-
-# Requires SDKMan
-- import_playbook: java/core.yml
-
-### Customizations
-- import_playbook: bash/core.yaml
-- import_playbook: bash/post.yaml
-- import_playbook: kde.yaml
