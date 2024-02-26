@@ -1,13 +1,21 @@
-# Ansible Dev Setup - Kubuntu 🐧
+# Dev Setup - Kubuntu 🐧
 
-This repository contains Ansible playbooks to install the necessary tools I find useful for
-working as a Software Engineer on my Linux machine.
+This repository contains scripts, configs and Ansible that I use to setup my development environment.
 
-This has been designed for Kubuntu distro (22.10+) 🖳
+This has been designed for Kubuntu distro (22.10+) 🖳 however if you use regular Ubuntu it should still work ok.
+
+Tools I mainly use are:
+
+- Java and Maven (provisioned with SDKman) ♨️
+- Docker 🐋
+- Node
+- SDKMan
+- LinuxBrew 🍺
+- Bash (with BashIT plugin)
 
 | Distro  | Version(s) | CPU            | SKU                                        |
 |---------|------------|----------------|--------------------------------------------|
-| Kubuntu | 22.10      | Intel (64-bit) | [Desktop](https://kubuntu.org/getkubuntu/) |
+| Kubuntu | 23.10      | Intel (64-bit) | [Desktop](https://kubuntu.org/getkubuntu/) |
 
 The structore of the files are like so:
 
@@ -16,29 +24,18 @@ The structore of the files are like so:
     - tool a.yml, b.yml, c.yml etc.
     - final tasks : kde.yml, java.yml etc.
 
-Tools I mainly use are:
-
-- Java and Maven (provisioned with SDKman) ♨️
-- Docker
-- Node
-- SDKMan
-- LinuxBrew
-- Bash
-
 **Note** some programs are installed using snap.
-
 
 Text shell customization assumes you're using bash.
 
 GUI shell customization assumes you're using KDE on desktop Linux.
 
-
 # Pre-Requisites
 
-1. Make sure packages are up to date
+1. Make sure packages are up to date by running the pre-setup bash script.
 
    ```shell
-   $ sh ./pre-setup.sh
+   $ ./pre-setup.sh
    ```
 
 # Running
@@ -56,9 +53,17 @@ $ sudo ansible-playbook main.yaml # needs to be run as sudo
 $ ansible-playbook user.yaml
 ```
 
+# After
+
+Some additional tweaks and customizations are done by running the post-setup bash script
+
+   ```shell
+   $ ./post-setup.sh
+   ```
+
 # Tags
 
-`#java` `#bash` `#kubuntu` `#docker` `#maven` `#git` `#bash-it` `#sdkman` `#linuxbrew`
+`#java` `#bash` `#kubuntu` `#docker` `#maven` `#git` `#bash-it` `#sdkman` `#linuxbrew` `#ansible`
 
 # Credits
 
