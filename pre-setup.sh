@@ -13,7 +13,6 @@ else
     printf "cURL found \n"
 fi
 
-
 cd /tmp
 # Check for Python PIP
 
