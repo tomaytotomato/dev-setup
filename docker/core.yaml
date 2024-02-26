@@ -1,69 +1,82 @@
 - name: Docker
   hosts: localhost
   connection: local
+  become: true
+  vars:
+    arch_mapping:  # Map ansible architecture {{ ansible_architecture }} names to Docker's architecture names
+      x86_64: amd64
+      aarch64: arm64
+    ansible_user: bruce
 
   tasks:
-    - name: Determine Docker Compose latest version
-      shell:
-        cmd: "curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -i \"browser_download_url.*linux-x86_64\\\"\" | cut -d : -f 2,3 | tr -d \\\""
-        warn: false
-      register: docker_compose_version
+    - name: Update and upgrade all packages to the latest version
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+        cache_valid_time: 3600
 
-    - name: Install Docker Compose
-      become: yes
-      get_url:
-        url: "{{ docker_compose_version.stdout }}"
-        dest: /usr/local/bin/docker-compose
-        mode: 0755
+    - name: Install required packages
+      ansible.builtin.apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - software-properties-common
 
-    - name: Add Docker APT package key
-      become: yes
-      get_url:
-        url: https://download.docker.com/linux/{{ distribution | lower }}/gpg
-        dest: /etc/apt/keyrings/docker.asc
-        mode: 0644
+    - name: Create directory for Docker's GPG key
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
 
-    - name: Add Docker APT package repository
-      become: yes
-      apt_repository:
-        repo: deb [arch=amd64, signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ distribution | lower }} {{ ansible_distribution_release }} stable
+    - name: Add Docker's official GPG key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        keyring: /etc/apt/keyrings/docker.gpg
+        state: present
+
+    - name: Print architecture variables
+      ansible.builtin.debug:
+        msg: "Architecture: {{ ansible_architecture }}, Codename: {{ ansible_lsb.codename }}"
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [arch={{ arch_mapping[ansible_architecture] | default(ansible_architecture) }}
+          signed-by=/etc/apt/keyrings/docker.gpg]
+          https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
         filename: docker
-        update_cache: no
-      register: apt_repository_docker
+        state: present
 
-    - name: Update APT package list
-      become: yes
-      apt:
-        update_cache: yes
-      when: apt_repository_docker.changed
-      register: apt_update
-      retries: 5
-      until: apt_update is success
-
-    - name: Install Docker engine
-      become: yes
-      apt:
-        package: "{{ item }}"
+    - name: Install Docker and related packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
       loop:
         - docker-ce
         - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
 
-    - name: Enable Docker engine for current user
-      become: yes
-      user:
-        name={{ lookup('env', "USER") }}
-        groups=docker
-        append=yes
+    - name: Add Docker group
+      ansible.builtin.group:
+        name: docker
+        state: present
 
-    - name: Determine Docker Machine latest version
-      shell:
-        cmd: "curl -s https://api.github.com/repos/docker/machine/releases/latest | grep \"browser_download_url.*Linux-x86_64\\\"\" | cut -d : -f 2,3 | tr -d \\\""
-        warn: false
-      register: docker_machine_version
+    - name: Add user to Docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: true
 
-    - name: Install Docker Machine
-      become: yes
-      get_url:
-        url: "{{ docker_machine_version.stdout }}"
-        dest: /usr/local/bin/docker-machine
-        mode: 0755
+    - name: Enable and start Docker services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop:
+        - docker.service
+        - containerd.service

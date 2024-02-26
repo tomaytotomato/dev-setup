@@ -10,7 +10,6 @@
 
 ##### Core tools that are missing from Kubuntu
 
-- import_playbook: linuxbrew/core.yml
 - import_playbook: sdkman/core.yml
 
 

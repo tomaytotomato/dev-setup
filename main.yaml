@@ -16,6 +16,8 @@
 ##### Developer tools
 
 - import_playbook: snap/core.yaml
+- import_playbook: docker/core.yaml
+- import_playbook: docker/customization.yaml
 - import_playbook: flameshot/core.yaml
 - import_playbook: git/core.yaml
 - import_playbook: nodejs/core.yaml
