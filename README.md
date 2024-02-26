@@ -17,7 +17,7 @@ Tools I mainly use are:
 |---------|------------|----------------|--------------------------------------------|
 | Kubuntu | 23.10      | Intel (64-bit) | [Desktop](https://kubuntu.org/getkubuntu/) |
 
-The structore of the files are like so:
+The structure of the files are like so:
 
   - main.yml
     - core.yml
@@ -50,7 +50,7 @@ Therefore there are two stages that need to be run, as below:
 
 ```shell
 $ sudo ansible-playbook main.yaml # needs to be run as sudo
-$ ansible-playbook user.yaml
+$ ansible-playbook user.yaml # don't run with sudo
 ```
 
 # After
