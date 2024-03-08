@@ -30,5 +30,6 @@
 - import_playbook: hblock/core.yml
 - import_playbook: yakuake/core.yml
 - import_playbook: jetbrains/core.yml
+- import_playbook: system/core.yml
 
 ##### Final tasks

@@ -12,7 +12,3 @@ printf "Installing LinuxBrew 🍺"
 
 printf "Initialising Jetbrains tool \n"
 /opt/jetbrains-toolbox
-
-
-# Turn Numlock on after login
-echo "Numlock=on" | sudo tee -a "/etc/sddm.conf"

@@ -155,3 +155,11 @@
         path: ~/.bashrc
         line: export RIPGREP_CONFIG_PATH=$HOME/.config/ripgrep
 
+    - name: Configure git to use SSH instead of HTTPS for GitHub
+      ansible.builtin.lineinfile:
+        path: ~/.gitconfig
+        line: 'url."git@github.com:".insteadOf "https://github.com/"'
+        state: present
+        create: yes
+      become: no
+
