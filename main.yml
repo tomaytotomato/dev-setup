@@ -11,21 +11,21 @@
 
 ##### Core tools that are missing from Kubuntu
 
-- import_playbook: core.yaml
+- import_playbook: core.yml
 
 ##### Developer tools
 
-- import_playbook: snap/core.yaml
-- import_playbook: docker/core.yaml
-- import_playbook: docker/customization.yaml
-- import_playbook: flameshot/core.yaml
-- import_playbook: git/core.yaml
-- import_playbook: nodejs/core.yaml
-- import_playbook: postman/core.yaml
-- import_playbook: prettyping/core.yaml
-- import_playbook: remmina/core.yaml
-- import_playbook: slack/core.yaml
-- import_playbook: vlc/core.yaml
+- import_playbook: snap/core.yml
+- import_playbook: docker/core.yml
+- import_playbook: docker/customization.yml
+- import_playbook: flameshot/core.yml
+- import_playbook: git/core.yml
+- import_playbook: nodejs/core.yml
+- import_playbook: postman/core.yml
+- import_playbook: prettyping/core.yml
+- import_playbook: remmina/core.yml
+- import_playbook: slack/core.yml
+- import_playbook: vlc/core.yml
 - import_playbook: enpass/core.yml
 - import_playbook: hblock/core.yml
 - import_playbook: yakuake/core.yml

@@ -17,6 +17,6 @@
 - import_playbook: java/core.yml
 
 ### Customizations
-- import_playbook: bash/core.yaml
-- import_playbook: bash/post.yaml
+- import_playbook: bash/core.yml
+- import_playbook: bash/post.yml
 - import_playbook: kde.yaml

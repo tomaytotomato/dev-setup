@@ -18,21 +18,21 @@
 
 ##### Developer tools
 
-- import_playbook: docker/customization.yaml
+- import_playbook: docker/customization.yml
 
-- import_playbook: dotnet/customization.yaml
+- import_playbook: dotnet/customization.yml
 
-- import_playbook: git/customization.yaml
-
-
-
-- import_playbook: no-screen-blank/core.yaml
-
-- import_playbook: nodejs/customization.yaml
+- import_playbook: git/customization.yml
 
 
 
-- import_playbook: ruby/customization.yaml
+- import_playbook: no-screen-blank/core.yml
+
+- import_playbook: nodejs/customization.yml
+
+
+
+- import_playbook: ruby/customization.yml
 
 
 ##### Applications (free)
