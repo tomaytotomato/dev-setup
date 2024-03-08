@@ -49,8 +49,8 @@ Therefore there are two stages that need to be run, as below:
 - user.yml (user / home level changes)
 
 ```shell
-$ sudo ansible-playbook main.yaml # needs to be run as sudo
-$ ansible-playbook user.yaml # don't run with sudo
+$ sudo ansible-playbook main.yml # needs to be run as sudo
+$ ansible-playbook user.yml # don't run with sudo
 ```
 
 # After

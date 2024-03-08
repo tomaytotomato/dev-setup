@@ -9,12 +9,12 @@
   hosts: localhost
   connection: local
 
-- import_playbook: main.yaml
+- import_playbook: main.yml
 
 ##### Operating system packages and configuration
 
 - import_playbook: customization-text.yaml
-- import_playbook: kde.yaml
+- import_playbook: kde.yml
 
 ##### Developer tools
 

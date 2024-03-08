@@ -1,4 +1,4 @@
-- import_playbook: ../rust-lang/core.yaml    # diffr is installed with Rust's cargo package manager
+- import_playbook: ../rust-lang/core.yml    # diffr is installed with Rust's cargo package manager
 
 - name: git (customization)
   hosts: localhost

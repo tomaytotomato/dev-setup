@@ -75,7 +75,6 @@
         - htop
         - iftop
         - net-tools
-        - cheat
 
     - name: Get installed package list
       package_facts: {}

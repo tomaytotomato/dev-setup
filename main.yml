@@ -22,6 +22,7 @@
 - import_playbook: git/core.yml
 - import_playbook: nodejs/core.yml
 - import_playbook: postman/core.yml
+- import_playbook: cheat/core.yml
 - import_playbook: prettyping/core.yml
 - import_playbook: remmina/core.yml
 - import_playbook: slack/core.yml
