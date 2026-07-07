@@ -1,6 +1,13 @@
 ---
+# CLI git and lfs — always safe to install.
 linux_git_packages:
   - git
-  - git-gui
   - git-lfs
+
+# KDE/GTK GUI helpers — pinned to the Ubuntu archive git version and may
+# clash with a git PPA (e.g. GitHub runners ship git-core PPA). Tagged
+# 'git-gui' so CI can skip via --skip-tags git-gui without losing
+# coverage of the rest of the role.
+linux_git_gui_packages:
+  - git-gui
   - gitk

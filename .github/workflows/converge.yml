@@ -29,6 +29,10 @@ jobs:
       #                  enpass, yakuake, jetbrains
       #   virtualization not wired into site.yml at all (opt-in only)
       CI_TAGS: core,snap,docker,git,sdkman,java,nodejs,bash
+      # git-gui/gitk are pinned to the archive git version and clash with
+      # the runner's git-core PPA (git 2.54). Skipped here; real Kubuntu
+      # runs pick them up because git is at the archive version.
+      CI_SKIP_TAGS: git-gui
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -47,10 +51,10 @@ jobs:
           ansible-galaxy collection install -r requirements.yml
 
       - name: List tasks that will run
-        run: ansible-playbook site.yml --list-tasks --tags "${CI_TAGS}"
+        run: ansible-playbook site.yml --list-tasks --tags "${CI_TAGS}" --skip-tags "${CI_SKIP_TAGS}"
 
       - name: Dry-run (--check --diff)
-        run: ansible-playbook site.yml --check --diff --tags "${CI_TAGS}"
+        run: ansible-playbook site.yml --check --diff --tags "${CI_TAGS}" --skip-tags "${CI_SKIP_TAGS}"
         # Some tasks can't be evaluated in check mode (e.g. shell tasks with
         # creates:); dry-run is informational, not a gate.
         continue-on-error: true
@@ -58,12 +62,12 @@ jobs:
       - name: Converge (first run)
         run: |
           set -o pipefail
-          ansible-playbook site.yml --tags "${CI_TAGS}" | tee first-run.log
+          ansible-playbook site.yml --tags "${CI_TAGS}" --skip-tags "${CI_SKIP_TAGS}" | tee first-run.log
 
       - name: Converge (second run — idempotency)
         run: |
           set -o pipefail
-          ansible-playbook site.yml --tags "${CI_TAGS}" | tee second-run.log
+          ansible-playbook site.yml --tags "${CI_TAGS}" --skip-tags "${CI_SKIP_TAGS}" | tee second-run.log
 
       - name: Assert idempotency
         run: |

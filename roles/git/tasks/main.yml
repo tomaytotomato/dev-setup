@@ -1,8 +1,14 @@
 ---
-- name: Install Git and tools
+- name: Install Git CLI tools
   become: true
   ansible.builtin.apt:
     name: "{{ linux_git_packages }}"
+
+- name: Install Git GUI tools
+  become: true
+  ansible.builtin.apt:
+    name: "{{ linux_git_gui_packages }}"
+  tags: git-gui
 
 - name: Install ripgrep
   become: true
