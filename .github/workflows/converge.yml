@@ -1,0 +1,93 @@
+---
+name: converge
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: converge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  converge:
+    name: Converge and idempotency
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ANSIBLE_FORCE_COLOR: "1"
+      # Curated tag set for a headless Ubuntu Server runner.
+      # Skipped roles and why:
+      #   system         writes /etc/sddm.conf and notifies "restart sddm"
+      #                  which fails on a headless runner (no sddm)
+      #   hblock         rewrites /etc/hosts wholesale, risks breaking DNS
+      #                  for subsequent apt/curl steps
+      #   apps (tag)     GUI/snap apps that add no CI signal: flameshot,
+      #                  postman, cheat, prettyping, remmina, slack, vlc,
+      #                  enpass, yakuake, jetbrains
+      #   virtualization not wired into site.yml at all (opt-in only)
+      CI_TAGS: core,snap,docker,git,sdkman,java,nodejs,bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install Ansible and collections
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          ansible-galaxy collection install -r requirements.yml
+
+      - name: List tasks that will run
+        run: ansible-playbook site.yml --list-tasks --tags "${CI_TAGS}"
+
+      - name: Dry-run (--check --diff)
+        run: ansible-playbook site.yml --check --diff --tags "${CI_TAGS}"
+        # Some tasks can't be evaluated in check mode (e.g. shell tasks with
+        # creates:); dry-run is informational, not a gate.
+        continue-on-error: true
+
+      - name: Converge (first run)
+        run: |
+          set -o pipefail
+          ansible-playbook site.yml --tags "${CI_TAGS}" | tee first-run.log
+
+      - name: Converge (second run — idempotency)
+        run: |
+          set -o pipefail
+          ansible-playbook site.yml --tags "${CI_TAGS}" | tee second-run.log
+
+      - name: Assert idempotency
+        run: |
+          # PLAY RECAP for localhost looks like:
+          #   localhost : ok=42 changed=0 unreachable=0 failed=0 skipped=3 ...
+          recap=$(grep -E '^localhost' second-run.log | tail -1)
+          echo "Second-run recap: ${recap}"
+          if [ -z "${recap}" ]; then
+            echo "::error::No PLAY RECAP line found for localhost in second run"
+            exit 1
+          fi
+          if echo "${recap}" | grep -qE 'changed=[1-9]|failed=[1-9]|unreachable=[1-9]'; then
+            echo "::error::Second run reported changes/failures — playbook is not idempotent"
+            exit 1
+          fi
+          echo "Idempotency OK."
+
+      - name: Upload converge logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: converge-logs
+          path: |
+            first-run.log
+            second-run.log
+          retention-days: 7
+          if-no-files-found: warn

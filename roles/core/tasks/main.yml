@@ -81,3 +81,5 @@
     path: ~/.hushlogin
     state: touch
     mode: '0644'
+    modification_time: preserve
+    access_time: preserve
