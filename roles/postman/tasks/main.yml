@@ -1,4 +1,5 @@
 ---
 - name: Postman - snap install
-  become: yes
-  command: snap install postman
+  become: true
+  community.general.snap:
+    name: postman

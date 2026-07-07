@@ -5,5 +5,10 @@ exclude_paths:
   - .venvs/
   - .pi-subagents/
   - resources/
+  - .ansible/
 skip_list:
   - experimental
+  # Deliberate skip: renaming every role variable to a role_ prefix is out of
+  # scope for the Phase 4 best-practice sweep. Some vars (sdkman_install_dir,
+  # sdkman_install_packages) are intentionally shared across java/sdkman roles.
+  - var-naming[no-role-prefix]

@@ -1,20 +1,20 @@
 ---
 - name: Enpass - repository key exists?
-  become: yes
-  apt_key:
+  become: true
+  ansible.builtin.apt_key:
     url: https://apt.enpass.io/keys/enpass-linux.key
     state: present
 
 - name: Enpass - APT repository exists?
-  become: yes
-  apt_repository:
+  become: true
+  ansible.builtin.apt_repository:
     repo: "deb https://apt.enpass.io/ stable main"
     state: present
     filename: enpass
 
 - name: Enpass - install
-  become: yes
-  apt:
+  become: true
+  ansible.builtin.apt:
     name: enpass
     state: present
     update_cache: true

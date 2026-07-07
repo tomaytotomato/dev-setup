@@ -1,11 +1,13 @@
 ---
 - name: Remmina - snap install
-  become: yes
-  command: snap install remmina
+  become: true
+  community.general.snap:
+    name: remmina
 
 - name: Remmina - snap fixes
-  become: yes
-  command: "{{ item }}"
+  become: true
+  ansible.builtin.command: "{{ item }}"
+  changed_when: false
   loop:
     - snap connect remmina:avahi-observe :avahi-observe
     - snap connect remmina:cups-control :cups-control

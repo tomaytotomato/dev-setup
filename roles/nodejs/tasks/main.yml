@@ -1,6 +1,6 @@
 ---
-- name: Install Node Version Manager (nvm)
-  become: no
+- name: Install Node Version Manager (nvm)  # noqa: command-instead-of-module
+  become: false
   ansible.builtin.shell: >
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.39.1/install.sh | bash
   args:
@@ -9,15 +9,17 @@
     creates: "$HOME/.nvm/nvm.sh"
 
 - name: Test for installed NodeJS LTS
-  shell: bash -ic "nvm ls lts/*" >/dev/null
+  ansible.builtin.shell: bash -ic "nvm ls lts/*" >/dev/null
   register: nvm_ls
-  ignore_errors: yes
+  failed_when: false
   changed_when: false
 
 - name: Install NodeJS LTS
-  command: bash -ic "nvm install lts/*"
-  when: nvm_ls.failed
+  ansible.builtin.command: bash -ic "nvm install lts/*"
+  when: nvm_ls.rc != 0
+  changed_when: true
 
 - name: Use NodeJS LTS by default
-  command: bash -ic "nvm use --lts"
-  when: nvm_ls.failed
+  ansible.builtin.command: bash -ic "nvm use --lts"
+  when: nvm_ls.rc != 0
+  changed_when: true

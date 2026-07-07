@@ -1,0 +1,6 @@
+---
+- name: Restart sddm
+  become: true
+  ansible.builtin.systemd:
+    name: sddm
+    state: restarted

@@ -1,26 +1,28 @@
 ---
 - name: Detect Linux variables
-  import_tasks: linux_vars.yml
+  ansible.builtin.import_tasks: linux_vars.yml
   when: ansible_os_family != "Darwin"
 
 - name: Assert home directory is detected
-  assert: { that: user_home | length > 0 }
+  ansible.builtin.assert:
+    that: user_home | length > 0
 
 - name: Assert current shell is detected
-  assert: { that: user_shell | length > 0 }
+  ansible.builtin.assert:
+    that: user_shell | length > 0
 
 - name: Clone bash_it for {{ user }}
-  git:
+  become: true
+  become_user: "{{ user }}"
+  ansible.builtin.git:
     repo: "{{ repository }}"
     dest: "{{ user_home }}/.bash_it"
     version: "{{ version }}"
-  become: yes
-  become_user: "{{ user }}"
 
 - name: .bash_profile loads .bashrc for {{ user }}
-  blockinfile:
+  ansible.builtin.blockinfile:
     dest: "{{ user_home }}/.bash_profile"
-    create: yes
+    create: true
     owner: "{{ user }}"
     mode: '0644'
     block: |
@@ -29,15 +31,16 @@
       fi
 
 - name: Change shell to bash for {{ user }}
-  command: "chsh -s /bin/bash {{ user }}"
-  become: yes
+  become: true
   become_user: root
+  ansible.builtin.command: "chsh -s /bin/bash {{ user }}"
   when: user_shell != "/bin/bash"
+  changed_when: true
 
 - name: Install bash_it on .bashrc for {{ user }}
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: "{{ user_home }}/.bashrc"
-    create: yes
+    create: true
     owner: "{{ user }}"
     mode: '0644'
     regexp: "{{ item.regexp }}"
@@ -48,25 +51,25 @@
     - { regexp: '^source \$BASH_IT', line: 'source $BASH_IT/bash_it.sh' }
 
 - name: Install bash_it plugins for {{ user }}
-  command: "/bin/bash -i -l -c \"bash-it enable plugin {{ plugins | join(' ') }}\""
-  become: yes
+  become: true
   become_user: "{{ user }}"
+  ansible.builtin.command: "/bin/bash -i -l -c \"bash-it enable plugin {{ plugins | join(' ') }}\""
   when: plugins is defined
   register: plugins_result
   changed_when: "plugins_result.stdout_lines | reject('match', '.* is already enabled.') | list | length > 0"
 
 - name: Install bash_it aliases for {{ user }}
-  command: "/bin/bash -i -l -c \"bash-it enable alias {{ aliases | join(' ') }}\""
-  become: yes
+  become: true
   become_user: "{{ user }}"
+  ansible.builtin.command: "/bin/bash -i -l -c \"bash-it enable alias {{ aliases | join(' ') }}\""
   when: aliases is defined
   register: aliases_result
   changed_when: "aliases_result.stdout_lines | reject('match', '.* is already enabled.') | list | length > 0"
 
 - name: Install bash_it completions for {{ user }}
-  command: "/bin/bash -i -l -c \"bash-it enable completion {{ completions | join(' ') }}\""
-  become: yes
+  become: true
   become_user: "{{ user }}"
+  ansible.builtin.command: "/bin/bash -i -l -c \"bash-it enable completion {{ completions | join(' ') }}\""
   when: completions is defined
   register: completions_result
   changed_when: "completions_result.stdout_lines | reject('match', '.* is already enabled.') | list | length > 0"
@@ -78,7 +81,7 @@
     regexp: '^export EDITOR='
 
 - name: Copy Bash-It custom aliases into place
-  copy:
+  ansible.builtin.copy:
     src: custom.aliases.bash
     dest: "~/.bash_it/aliases/"
     mode: '0644'

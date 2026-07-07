@@ -1,0 +1,5 @@
+---
+- name: Regenerate hosts via hblock
+  become: true
+  ansible.builtin.command: /usr/local/bin/hblock -H /etc/hosts.allow -F /etc/hosts.deny
+  changed_when: true

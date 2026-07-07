@@ -1,23 +1,22 @@
 ---
 - name: Install Git and tools
-  become: yes
-  apt:
-    package: "{{ item }}"
-  loop: "{{ linux_git_packages }}"
+  become: true
+  ansible.builtin.apt:
+    name: "{{ linux_git_packages }}"
 
 - name: Install ripgrep
-  become: yes
-  apt:
-    package: ripgrep
+  become: true
+  ansible.builtin.apt:
+    name: ripgrep
 
 - name: Download git-completion.bash
-  get_url:
+  ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
     dest: ~/.git-completion.bash
     mode: '0644'
 
 - name: Add bash completion for git
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: ~/.bashrc
     marker: "### {mark} Ansible managed: git-completion.bash"
     block: |
@@ -26,31 +25,31 @@
       fi
 
 - name: Download bash-git-prompt
-  git:
+  ansible.builtin.git:
     repo: https://github.com/magicmonty/bash-git-prompt
     dest: ~/.bash-git-prompt
     version: master
 
 - name: Enable and customise bash-git-prompt
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: ~/.bashrc
     marker: "### {mark} Ansible managed: bash-git-prompt"
     block: "{{ lookup('file', 'bash-git-prompt.bashrc') }}"
 
 - name: Ensure ~/.config exists
-  file:
+  ansible.builtin.file:
     path: ~/.config
     state: directory
     mode: '0700'
 
 - name: Install ripgrep config
-  copy:
+  ansible.builtin.copy:
     src: ripgrep.conf
     dest: ~/.config/ripgrep
     mode: '0644'
 
 - name: Set ripgrep configuration path
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ~/.bashrc
     line: export RIPGREP_CONFIG_PATH=$HOME/.config/ripgrep
     regexp: '^export RIPGREP_CONFIG_PATH='
@@ -60,5 +59,5 @@
     path: ~/.gitconfig
     line: 'url."git@github.com:".insteadOf "https://github.com/"'
     state: present
-    create: yes
+    create: true
     mode: '0644'

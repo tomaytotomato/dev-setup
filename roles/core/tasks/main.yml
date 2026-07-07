@@ -1,86 +1,83 @@
 ---
-- name: Disable auto-upgrade timer
-  become: yes
-  command:
-    cmd: systemctl disable {{ item }}.timer
-    removes: /etc/systemd/system/timers.target.wants/{{ item }}.timer
+- name: Disable apt-daily timers
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: false
+    state: stopped
+    masked: true
   loop:
-    - apt-daily
-    - apt-daily-upgrade
+    - apt-daily.timer
+    - apt-daily-upgrade.timer
 
 - name: Create /etc/apt/keyrings
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
-    mode: 0755
+    mode: '0755'
 
 - name: Create ~/bin
-  file:
+  ansible.builtin.file:
     path: ~/bin
     state: directory
-    mode: 0700
+    mode: '0700'
 
 - name: Add ~/bin to PATH
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ~/.bashrc
     line: export PATH=$PATH:~/bin
     regexp: '^export PATH=.*~/bin$'
 
 - name: Enable HTTPS APT support
-  become: yes
-  apt:
-    name: "{{ packages }}"
-  vars:
-    packages:
+  become: true
+  ansible.builtin.apt:
+    name:
       - apt-transport-https
       - ca-certificates
       - gnupg-agent
       - software-properties-common
 
-- name: Update APT package list
-  become: yes
-  apt:
-    update_cache: yes
+- name: Refresh APT cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
   register: apt_update
   retries: 5
   until: apt_update is success
 
-- name: Upgrade to latest APT packages
-  become: yes
-  apt:
-    upgrade: yes
-
 - name: Install core packages
-  become: yes
-  apt:
-    package: "{{ item }}"
-  loop:
-    - curl
-    - dconf-editor
-    - exfat-fuse
-    - htop
-    - iftop
-    - inetutils-traceroute
-    - jq
-    - net-tools
-    - p7zip-full
-    - unzip
-    - uuid
-    - xclip
-    - vim
+  become: true
+  ansible.builtin.apt:
+    name:
+      - curl
+      - dconf-editor
+      - exfat-fuse
+      - htop
+      - iftop
+      - inetutils-traceroute
+      - jq
+      - net-tools
+      - p7zip-full
+      - unzip
+      - uuid
+      - xclip
+      - vim
 
 - name: Get installed package list
-  package_facts: {}
+  ansible.builtin.package_facts: {}
 
 - name: Add dm-crypt to /etc/initramfs-tools/modules
-  become: yes
-  lineinfile:
+  become: true
+  ansible.builtin.lineinfile:
     path: /etc/initramfs-tools/modules
     line: dm-crypt
   when: ansible_facts.packages["cryptsetup-initramfs"] is defined
+  notify: Update initramfs
 
 - name: Ensure ~/.hushlogin exists
-  file:
+  ansible.builtin.file:
     path: ~/.hushlogin
     state: touch
+    mode: '0644'

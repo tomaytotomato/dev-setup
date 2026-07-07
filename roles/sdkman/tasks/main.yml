@@ -1,40 +1,40 @@
 ---
 - name: Install dependencies
-  become: yes
-  package:
+  become: true
+  ansible.builtin.package:
     name: '{{ sdkman_dependencies }}'
     state: present
 
 - name: Create download directory
-  file:
+  ansible.builtin.file:
     state: directory
     mode: 'u=rwx,go=rx'
     dest: '{{ sdkman_download_dir }}'
 
 - name: Download SDKMAN
-  get_url:
+  ansible.builtin.get_url:
     url: '{{ sdkman_url }}'
     dest: '{{ sdkman_download_dir }}/{{ sdkman_redis_filename }}'
     checksum: 'sha256:{{ sdkman_redis_sha256sum }}'
-    force: no
-    use_proxy: yes
-    validate_certs: yes
+    force: false
+    use_proxy: true
+    validate_certs: true
     mode: 'u=rw,go=r'
 
 - name: Download SDKMAN native
-  get_url:
+  ansible.builtin.get_url:
     url: '{{ sdkman_native_url }}'
     dest: '{{ sdkman_download_dir }}/{{ sdkman_native_redis_filename }}'
     checksum: 'sha256:{{ sdkman_native_redis_sha256sum }}'
-    force: no
-    use_proxy: yes
-    validate_certs: yes
+    force: false
+    use_proxy: true
+    validate_certs: true
     mode: 'u=rw,go=r'
 
 # Convert zip archives to tar.gz so we can use --strip-components when unarchiving
 - name: Convert zip archives to tar.gz
-  become: yes
-  command:
+  become: true
+  ansible.builtin.command:
     argv: [bsdtar, czf, '{{ item }}.tar.gz', '@{{ item }}']
     creates: '{{ item }}.tar.gz'
   with_items:
@@ -42,9 +42,9 @@
     - '{{ sdkman_download_dir }}/{{ sdkman_native_redis_filename }}'
 
 - name: Create the SDKMAN installation directories
-  become: yes
+  become: true
   become_user: '{{ item[0] }}'
-  file:
+  ansible.builtin.file:
     state: directory
     mode: 'u=rwx,go=rx'
     dest: '{{ item[1] }}'
@@ -65,49 +65,49 @@
     label: '{{ item[0] }}: {{ item[1] }}'
 
 - name: Download candidates
-  uri:
+  ansible.builtin.uri:
     url: '{{ sdkman_candidates_url }}'
-    return_content: yes
+    return_content: true
   register: candidates
 
 - name: Save candidates
-  become: yes
+  become: true
   become_user: '{{ item }}'
-  copy:
+  ansible.builtin.copy:
     content: "{{ candidates.content }}\n"
     dest: '{{ sdkman_install_dir }}/var/candidates'
     mode: 'u=rwx,go=rx'
   with_items: '{{ sdkman_users }}'
 
 - name: Save config
-  become: yes
+  become: true
   become_user: '{{ item }}'
-  template:
+  ansible.builtin.template:
     src: 'config.j2'
     dest: '{{ sdkman_install_dir }}/etc/config'
     mode: 'u=rw,go=r'
   with_items: '{{ sdkman_users }}'
 
 - name: Query user groups
-  become: yes
-  command:
+  become: true
+  ansible.builtin.command:
     argv: [id, -gn, '{{ item }}']
   with_items: '{{ sdkman_users }}'
   register: sdkman_user_groups_out
   changed_when: false
 
 - name: Set groups var
-  set_fact:
+  ansible.builtin.set_fact:
     sdkman_user_groups: '{{ sdkman_user_groups | default({}) | combine({item.item: item.stdout}) }}'
   with_items: '{{ sdkman_user_groups_out.results }}'
   loop_control:
     label: '{{ item.item }}: {{ item.stdout }}'
 
 - name: Extract SDKMAN
-  become: yes
-  unarchive:
+  become: true
+  ansible.builtin.unarchive:
     src: '{{ sdkman_download_dir }}/{{ sdkman_redis_filename }}.tar.gz'
-    remote_src: yes
+    remote_src: true
     dest: '{{ sdkman_install_dir | regex_replace("~", "~" + item) }}'
     extra_opts: ['--strip-components=1']
     creates: '{{ sdkman_install_dir | regex_replace("~", "~" + item) }}/var/version_native'
@@ -117,10 +117,10 @@
   with_items: '{{ sdkman_users }}'
 
 - name: Extract SDKMAN native
-  become: yes
-  unarchive:
+  become: true
+  ansible.builtin.unarchive:
     src: '{{ sdkman_download_dir }}/{{ sdkman_native_redis_filename }}.tar.gz'
-    remote_src: yes
+    remote_src: true
     dest: '{{ sdkman_install_dir | regex_replace("~", "~" + item) }}'
     extra_opts: ['--strip-components=1']
     creates: '{{ sdkman_install_dir | regex_replace("~", "~" + item) }}/var/version_native'
@@ -130,52 +130,52 @@
   with_items: '{{ sdkman_users }}'
 
 - name: Save SDKMAN version
-  become: yes
+  become: true
   become_user: '{{ item }}'
-  copy:
+  ansible.builtin.copy:
     content: "{{ sdkman_version }}\n"
     dest: '{{ sdkman_install_dir }}/var/version'
     mode: 'u=rwx,go=rx'
   with_items: '{{ sdkman_users }}'
 
 - name: Save SDKMAN native version
-  become: yes
+  become: true
   become_user: '{{ item }}'
-  copy:
+  ansible.builtin.copy:
     content: "{{ sdkman_native_version }}\n"
     dest: '{{ sdkman_install_dir }}/var/version_native'
     mode: 'u=rwx,go=rx'
   with_items: '{{ sdkman_users }}'
 
 - name: Install .sdkmanshrc
-  become: yes
+  become: true
   become_user: '{{ item }}'
-  template:
+  ansible.builtin.template:
     src: 'sdkmanshrc.j2'
     dest: '~/.sdkmanshrc'
     mode: 'u=rw,go=r'
   with_items: '{{ sdkman_users }}'
 
 - name: Configure .bashrc
-  become: yes
+  become: true
   become_user: '{{ item }}'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: '~/.bashrc'
     state: present
     regexp: '^source ~/.sdkmanshrc'
     line: 'source ~/.sdkmanshrc #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!'
-    create: yes
+    create: true
     mode: 'u=rw,go=r'
   with_items: '{{ sdkman_users }}'
 
 - name: Configure .zshrc
-  become: yes
+  become: true
   become_user: '{{ item }}'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: '~/.zshrc'
     state: present
     regexp: '^source ~/.sdkmanshrc'
     line: 'source ~/.sdkmanshrc #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!'
-    create: yes
+    create: true
     mode: 'u=rw,go=r'
   with_items: '{{ sdkman_users }}'

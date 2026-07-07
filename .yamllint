@@ -1,5 +1,10 @@
 ---
 extends: default
+ignore: |
+  .ansible/
+  .venvs/
+  .pi-subagents/
+  resources/
 rules:
   line-length:
     max: 160
@@ -10,3 +15,11 @@ rules:
   comments:
     min-spaces-from-content: 1
   document-start: disable
+  comments-indentation: false
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true
+  braces:
+    max-spaces-inside: 1
+  commas:
+    max-spaces-after: 1

@@ -1,7 +1,7 @@
 ---
 - name: Yakuake Terminal - install
-  become: yes
-  apt:
+  become: true
+  ansible.builtin.apt:
     name: yakuake
     state: present
     update_cache: true

@@ -1,4 +1,5 @@
 ---
 - name: Cheat - snap install
-  become: yes
-  command: snap install cheat
+  become: true
+  community.general.snap:
+    name: cheat

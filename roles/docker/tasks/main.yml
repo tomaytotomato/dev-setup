@@ -1,9 +1,8 @@
 ---
-- name: Update and upgrade all packages to the latest version
+- name: Refresh APT cache
   become: true
   ansible.builtin.apt:
     update_cache: true
-    upgrade: dist
     cache_valid_time: 3600
 
 - name: Install required packages
@@ -47,15 +46,14 @@
 - name: Install Docker and related packages
   become: true
   ansible.builtin.apt:
-    name: "{{ item }}"
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
     state: present
     update_cache: true
-  loop:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
-    - docker-buildx-plugin
-    - docker-compose-plugin
 
 - name: Add Docker group
   become: true
@@ -81,21 +79,22 @@
     - containerd.service
 
 - name: Ensure /etc/docker exists
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: /etc/docker
     state: directory
     mode: '0755'
 
 - name: Configure default Docker network
-  become: yes
-  copy:
+  become: true
+  ansible.builtin.copy:
     src: daemon.json
     dest: /etc/docker/daemon.json
     mode: '0644'
+  notify: Restart docker
 
 - name: Add custom Docker shell functions
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: ~/.bashrc
     marker: "### {mark} Ansible managed: Docker customization"
     block: "{{ lookup('file', 'docker-functions.bash') }}"

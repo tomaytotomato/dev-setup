@@ -1,12 +1,12 @@
 ---
 - name: Check if Hblock is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ hblock_install_path }}"
   register: hblock
 
 - name: Download HBlock and verify checksum
-  become: yes
-  get_url:
+  become: true
+  ansible.builtin.get_url:
     url: "{{ hblock_url }}"
     dest: "{{ hblock_download_path }}"
     checksum: "{{ hblock_checksum }}"
@@ -14,8 +14,8 @@
   when: not hblock.stat.exists
 
 - name: "Install HBlock to {{ hblock_install_path }}"
-  become: yes
-  copy:
+  become: true
+  ansible.builtin.copy:
     src: "{{ hblock_download_path }}"
     dest: "{{ hblock_install_path }}"
     remote_src: true
@@ -23,16 +23,17 @@
   when: not hblock.stat.exists
 
 - name: Set HBlock permissions
-  become: yes
-  file:
+  become: true
+  ansible.builtin.file:
     path: "{{ hblock_install_path }}"
     owner: "0"
     group: "0"
     mode: '0755'
 
 - name: Copy blocked domains (social, trackers, xxx)
-  become: yes
-  copy:
+  become: true
+  ansible.builtin.copy:
     src: "hosts.deny"
     dest: /etc/hosts.deny
     mode: '0644'
+  notify: Regenerate hosts via hblock

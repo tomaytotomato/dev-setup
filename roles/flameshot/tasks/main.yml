@@ -1,5 +1,5 @@
 ---
 - name: Install Flameshot
-  become: yes
-  apt:
-    package: flameshot
+  become: true
+  ansible.builtin.apt:
+    name: flameshot

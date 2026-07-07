@@ -1,6 +1,6 @@
 ---
 - name: Install SDK candidates/versions
-  shell: >-
+  ansible.builtin.shell: >-
     . {{ sdkman_install_dir }}/bin/sdkman-init.sh &&
     sdk install {{ item.candidate }} {{ item.version | default('') }} {{ item.localpath | default('') }}
   args:
