@@ -61,9 +61,10 @@
     regexp: '^export RIPGREP_CONFIG_PATH='
 
 - name: Configure git to use SSH instead of HTTPS for GitHub
-  ansible.builtin.lineinfile:
-    path: ~/.gitconfig
-    line: 'url."git@github.com:".insteadOf "https://github.com/"'
-    state: present
-    create: true
-    mode: '0644'
+  # lineinfile produces an unparseable ~/.gitconfig (no [section] header)
+  # which breaks every subsequent git invocation. git_config writes the
+  # correct INI structure.
+  community.general.git_config:
+    scope: global
+    name: 'url.git@github.com:.insteadOf'
+    value: 'https://github.com/'
