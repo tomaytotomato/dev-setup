@@ -32,7 +32,9 @@ jobs:
       # git-gui/gitk are pinned to the archive git version and clash with
       # the runner's git-core PPA (git 2.54). Skipped here; real Kubuntu
       # runs pick them up because git is at the archive version.
-      CI_SKIP_TAGS: git-gui
+      # github-ssh rewrites all github.com https URLs to SSH — needs SSH
+      # keys the runner doesn't have.
+      CI_SKIP_TAGS: git-gui,github-ssh
     steps:
       - name: Checkout
         uses: actions/checkout@v7

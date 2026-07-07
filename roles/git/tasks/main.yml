@@ -64,7 +64,13 @@
   # lineinfile produces an unparseable ~/.gitconfig (no [section] header)
   # which breaks every subsequent git invocation. git_config writes the
   # correct INI structure.
+  #
+  # Tagged 'github-ssh' because this rewrite makes every github.com
+  # https clone require SSH keys — desirable on a personal workstation
+  # with keys loaded, hostile on any environment without them (e.g. CI
+  # runners). Skip via --skip-tags github-ssh where SSH isn't set up.
   community.general.git_config:
     scope: global
     name: 'url.git@github.com:.insteadOf'
     value: 'https://github.com/'
+  tags: github-ssh
