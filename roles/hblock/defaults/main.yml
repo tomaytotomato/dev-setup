@@ -1,0 +1,5 @@
+---
+hblock_url: "https://raw.githubusercontent.com/hectorm/hblock/v3.4.1/hblock"
+hblock_download_path: "/tmp/hblock"
+hblock_checksum: "sha1: 71ef449c4505181517bae0fbf8506b7f9f63e643"
+hblock_install_path: "/usr/local/bin/hblock"

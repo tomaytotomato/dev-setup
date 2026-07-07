@@ -1,0 +1,4 @@
+---
+- name: Slack - install
+  become: yes
+  command: snap install slack

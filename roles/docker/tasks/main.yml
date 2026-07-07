@@ -1,0 +1,101 @@
+---
+- name: Update and upgrade all packages to the latest version
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: dist
+    cache_valid_time: 3600
+
+- name: Install required packages
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - software-properties-common
+
+- name: Create directory for Docker's GPG key
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Add Docker's official GPG key
+  become: true
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    keyring: /etc/apt/keyrings/docker.gpg
+    state: present
+
+- name: Print architecture variables
+  ansible.builtin.debug:
+    msg: "Architecture: {{ ansible_architecture }}, Codename: {{ ansible_lsb.codename }}"
+
+- name: Add Docker repository
+  become: true
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [arch={{ arch_mapping[ansible_architecture] | default(ansible_architecture) }}
+      signed-by=/etc/apt/keyrings/docker.gpg]
+      https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
+    filename: docker
+    state: present
+
+- name: Install Docker and related packages
+  become: true
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-buildx-plugin
+    - docker-compose-plugin
+
+- name: Add Docker group
+  become: true
+  ansible.builtin.group:
+    name: docker
+    state: present
+
+- name: Add user to Docker group
+  become: true
+  ansible.builtin.user:
+    name: "{{ docker_user }}"
+    groups: docker
+    append: true
+
+- name: Enable and start Docker services
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+    - docker.service
+    - containerd.service
+
+- name: Ensure /etc/docker exists
+  become: yes
+  file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+
+- name: Configure default Docker network
+  become: yes
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+
+- name: Add custom Docker shell functions
+  blockinfile:
+    path: ~/.bashrc
+    marker: "### {mark} Ansible managed: Docker customization"
+    block: "{{ lookup('file', 'docker-functions.bash') }}"

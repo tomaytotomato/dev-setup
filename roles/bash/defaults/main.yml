@@ -1,0 +1,37 @@
+---
+repository: https://github.com/bash-it/bash-it.git
+version: master
+theme: pure
+user: "{{ ansible_user_id }}"
+aliases:
+  - general
+  - vim
+  - git
+  - maven
+  - docker-compose
+  - docker
+  - curl
+  - npm
+plugins:
+  - base
+  - alias-completion
+  - brew
+  - git
+  - nvm
+  - sdkman
+  - ansible
+  - progress
+  - java
+  - jenv
+completions:
+  - bash-it
+  - brew
+  - system
+  - docker-compose
+  - git
+  - sdkman
+  - nvm
+  - npm
+  - maven
+  - java
+  - jenv

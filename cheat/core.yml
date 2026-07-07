@@ -1,8 +1,0 @@
-- name: Install Cheat terminal helper app
-  hosts: localhost
-  connection: local
-  become: yes
-
-  tasks:
-    - name: cheat - snap install
-      command: snap install cheat

@@ -1,0 +1,6 @@
+---
+maven_version: '3.8.7'
+sdkman_install_dir: '~/.sdkman'
+sdkman_install_packages:
+  - { candidate: maven, version: '3.8.7' }
+  - { candidate: java, version: '19.0.2-open' }

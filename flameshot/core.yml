@@ -1,9 +1,0 @@
-- name: Flameshot screenshot tool
-  hosts: localhost
-  connection: local
-
-  tasks:
-    - name: "Install Flameshot"
-      become: yes
-      apt:
-        package: flameshot

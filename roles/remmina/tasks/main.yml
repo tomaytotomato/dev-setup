@@ -1,0 +1,15 @@
+---
+- name: Remmina - snap install
+  become: yes
+  command: snap install remmina
+
+- name: Remmina - snap fixes
+  become: yes
+  command: "{{ item }}"
+  loop:
+    - snap connect remmina:avahi-observe :avahi-observe
+    - snap connect remmina:cups-control :cups-control
+    - snap connect remmina:mount-observe :mount-observe
+    - snap connect remmina:password-manager-service :password-manager-service
+    - snap connect remmina:audio-playback :audio-playback
+    - snap connect remmina:audio-record :audio-record

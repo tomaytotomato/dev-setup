@@ -1,0 +1,6 @@
+---
+linux_git_packages:
+  - git
+  - git-gui
+  - git-lfs
+  - gitk

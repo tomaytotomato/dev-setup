@@ -1,0 +1,7 @@
+---
+- name: Yakuake Terminal - install
+  become: yes
+  apt:
+    name: yakuake
+    state: present
+    update_cache: true

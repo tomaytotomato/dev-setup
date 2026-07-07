@@ -1,0 +1,18 @@
+---
+- name: Snap refresh
+  become: yes
+  command: snap refresh
+
+- name: Install Snapd
+  become: yes
+  command: snap install snapd
+
+- name: Install Snap core
+  become: yes
+  command: snap install core
+
+- name: Add /snap/bin to PATH
+  lineinfile:
+    path: ~/.bashrc
+    line: export PATH=$PATH:/snap/bin
+    regexp: '^export PATH=.*:/snap/bin$'

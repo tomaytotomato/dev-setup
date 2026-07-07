@@ -1,0 +1,9 @@
+---
+- name: Ensure Numlock is enabled in /etc/sddm.conf
+  ansible.builtin.lineinfile:
+    path: /etc/sddm.conf
+    line: 'Numlock=on'
+    state: present
+    create: yes
+  become: yes
+  become_method: sudo

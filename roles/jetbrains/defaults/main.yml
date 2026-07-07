@@ -1,0 +1,11 @@
+---
+toolbox_version: "2.2.1.19765"
+toolbox_install_dir: "/opt"
+toolbox_install_for_user: ""
+inotify_max_user_watches: "524288"
+application_name: "JetBrains Toolbox"
+toolbox_install_file: "jetbrains-toolbox"
+archive_file_name: "{{ toolbox_install_file }}-{{ toolbox_version }}.tar.gz"
+download_url: "https://download.jetbrains.com/toolbox/{{ archive_file_name }}"
+temporary_file_name: "/tmp/{{ archive_file_name }}"
+toolbox_install_path: "{{ toolbox_install_dir }}/{{ toolbox_install_file }}"

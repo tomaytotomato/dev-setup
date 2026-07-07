@@ -1,0 +1,64 @@
+---
+- name: Install Git and tools
+  become: yes
+  apt:
+    package: "{{ item }}"
+  loop: "{{ linux_git_packages }}"
+
+- name: Install ripgrep
+  become: yes
+  apt:
+    package: ripgrep
+
+- name: Download git-completion.bash
+  get_url:
+    url: https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
+    dest: ~/.git-completion.bash
+    mode: '0644'
+
+- name: Add bash completion for git
+  blockinfile:
+    path: ~/.bashrc
+    marker: "### {mark} Ansible managed: git-completion.bash"
+    block: |
+      if [ -f ~/.git-completion.bash ]; then
+        . ~/.git-completion.bash
+      fi
+
+- name: Download bash-git-prompt
+  git:
+    repo: https://github.com/magicmonty/bash-git-prompt
+    dest: ~/.bash-git-prompt
+    version: master
+
+- name: Enable and customise bash-git-prompt
+  blockinfile:
+    path: ~/.bashrc
+    marker: "### {mark} Ansible managed: bash-git-prompt"
+    block: "{{ lookup('file', 'bash-git-prompt.bashrc') }}"
+
+- name: Ensure ~/.config exists
+  file:
+    path: ~/.config
+    state: directory
+    mode: '0700'
+
+- name: Install ripgrep config
+  copy:
+    src: ripgrep.conf
+    dest: ~/.config/ripgrep
+    mode: '0644'
+
+- name: Set ripgrep configuration path
+  lineinfile:
+    path: ~/.bashrc
+    line: export RIPGREP_CONFIG_PATH=$HOME/.config/ripgrep
+    regexp: '^export RIPGREP_CONFIG_PATH='
+
+- name: Configure git to use SSH instead of HTTPS for GitHub
+  ansible.builtin.lineinfile:
+    path: ~/.gitconfig
+    line: 'url."git@github.com:".insteadOf "https://github.com/"'
+    state: present
+    create: yes
+    mode: '0644'

@@ -1,0 +1,5 @@
+---
+- name: Install VLC
+  become: yes
+  apt:
+    package: vlc

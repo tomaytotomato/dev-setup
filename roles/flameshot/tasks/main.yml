@@ -1,0 +1,5 @@
+---
+- name: Install Flameshot
+  become: yes
+  apt:
+    package: flameshot

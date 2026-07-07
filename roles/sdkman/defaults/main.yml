@@ -1,0 +1,29 @@
+---
+sdkman_service: 'https://api.sdkman.io/2'
+sdkman_platform: linuxx64
+sdkman_url: '{{ sdkman_service }}/broker/download/sdkman/install/{{ sdkman_version }}/{{ sdkman_platform }}'
+sdkman_native_url: '{{ sdkman_service }}/broker/download/native/install/{{ sdkman_native_version }}/{{ sdkman_platform }}'
+sdkman_candidates_url: '{{ sdkman_service }}/candidates/all'
+sdkman_redis_filename: 'sdkman-cli-{{ sdkman_version }}.zip'
+sdkman_native_redis_filename: 'sdkman-cli-native-{{ sdkman_native_version }}-{{ sdkman_platform }}.zip'
+sdkman_install_dir: '~/.sdkman'
+
+# version specifics
+sdkman_version: '5.16.0'
+sdkman_redis_sha256sum: 'a97aab3446ef76da2ea573d8e40e2c3d286468df69a40c83a4954b92c5229aa9'
+sdkman_native_version: '0.0.15'
+sdkman_native_redis_sha256sum: '824e0a16c537ed20aaa71afcf5af0cc3a812ecdc7d50847080e6c77552159448'
+
+# Directory to store files downloaded for SDKMAN
+sdkman_download_dir: "{{ x_ansible_download_dir | default(ansible_env.HOME + '/.ansible/tmp/downloads') }}"
+
+sdkman_dependencies:
+  - curl
+  - findutils
+  - libarchive-tools
+  - sed
+  - unzip
+  - zip
+
+sdkman_users:
+  - "{{ ansible_user_id }}"

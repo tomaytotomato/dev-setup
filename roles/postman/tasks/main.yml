@@ -1,0 +1,4 @@
+---
+- name: Postman - snap install
+  become: yes
+  command: snap install postman

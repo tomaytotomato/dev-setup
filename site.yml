@@ -1,0 +1,25 @@
+---
+- name: Configure Kubuntu dev machine
+  hosts: local
+  gather_facts: true
+  roles:
+    - { role: core,       tags: [system, core] }
+    - { role: snap,       tags: [system, snap] }
+    - { role: system,     tags: [system] }
+    - { role: docker,     tags: [system, docker] }
+    - { role: flameshot,  tags: [system, apps] }
+    - { role: git,        tags: [system, git] }
+    - { role: postman,    tags: [system, apps] }
+    - { role: cheat,      tags: [system, apps] }
+    - { role: prettyping, tags: [system, apps] }
+    - { role: remmina,    tags: [system, apps] }
+    - { role: slack,      tags: [system, apps] }
+    - { role: vlc,        tags: [system, apps] }
+    - { role: enpass,     tags: [system, apps] }
+    - { role: hblock,     tags: [system, privacy] }
+    - { role: yakuake,    tags: [system, apps] }
+    - { role: jetbrains,  tags: [system, apps] }
+    - { role: nodejs,     tags: [user, nodejs] }
+    - { role: sdkman,     tags: [user, sdkman] }
+    - { role: java,       tags: [user, java, sdkman] }
+    - { role: bash,       tags: [user, bash] }

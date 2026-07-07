@@ -1,0 +1,38 @@
+---
+- name: Check if Hblock is installed
+  stat:
+    path: "{{ hblock_install_path }}"
+  register: hblock
+
+- name: Download HBlock and verify checksum
+  become: yes
+  get_url:
+    url: "{{ hblock_url }}"
+    dest: "{{ hblock_download_path }}"
+    checksum: "{{ hblock_checksum }}"
+    mode: '0750'
+  when: not hblock.stat.exists
+
+- name: "Install HBlock to {{ hblock_install_path }}"
+  become: yes
+  copy:
+    src: "{{ hblock_download_path }}"
+    dest: "{{ hblock_install_path }}"
+    remote_src: true
+    mode: '0755'
+  when: not hblock.stat.exists
+
+- name: Set HBlock permissions
+  become: yes
+  file:
+    path: "{{ hblock_install_path }}"
+    owner: "0"
+    group: "0"
+    mode: '0755'
+
+- name: Copy blocked domains (social, trackers, xxx)
+  become: yes
+  copy:
+    src: "hosts.deny"
+    dest: /etc/hosts.deny
+    mode: '0644'
