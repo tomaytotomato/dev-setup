@@ -3,6 +3,7 @@ repository: https://github.com/bash-it/bash-it.git
 version: master
 theme: pure
 user: "{{ ansible_user_id }}"
+
 aliases:
   - general
   - vim
@@ -12,18 +13,21 @@ aliases:
   - docker
   - curl
   - npm
+
 plugins:
+  # Removed: brew, ansible, progress — not present in current bash-it
+  # (bash-it just logs "sorry, X does not appear to be an available
+  # plugin." and moves on, but each miss breaks the changed_when regex).
   - base
   - alias-completion
-  - brew
   - git
   - nvm
   - sdkman
-  - ansible
-  - progress
   - java
   - jenv
+
 completions:
+  # Removed: java, jenv — not present in current bash-it's completions/.
   - bash-it
   - brew
   - system
@@ -33,5 +37,3 @@ completions:
   - nvm
   - npm
   - maven
-  - java
-  - jenv

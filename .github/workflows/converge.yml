@@ -69,10 +69,7 @@ jobs:
       - name: Converge (second run — idempotency)
         run: |
           set -o pipefail
-          # -v on the second run so we can see stdout for tasks that
-          # (mis)report changed=true; makes idempotency-drift diagnosis
-          # possible without another workflow round-trip.
-          ansible-playbook -v site.yml --tags "${CI_TAGS}" --skip-tags "${CI_SKIP_TAGS}" | tee second-run.log
+          ansible-playbook site.yml --tags "${CI_TAGS}" --skip-tags "${CI_SKIP_TAGS}" | tee second-run.log
 
       - name: Assert idempotency
         run: |
