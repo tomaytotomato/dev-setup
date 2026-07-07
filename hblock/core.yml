@@ -11,7 +11,7 @@
   tasks:
     - name: Check if Hblock is installed
       stat:
-        path: " {{ hblock_install_path }}"
+        path: "{{ hblock_install_path }}"
       register: hblock
 
     - name: Download HBlock and verify checksum

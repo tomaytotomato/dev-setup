@@ -30,6 +30,7 @@
       lineinfile:
         path: ~/.bashrc
         line: export PATH=$PATH:~/bin
+        regexp: '^export PATH=.*~/bin$'
 
     - name: Enable HTTPS APT support
       become: yes
@@ -64,6 +65,7 @@
         - dconf-editor
         - exfat-fuse
         - htop
+        - iftop
         - inetutils-traceroute
         - jq
         - net-tools
@@ -72,9 +74,6 @@
         - uuid
         - xclip
         - vim
-        - htop
-        - iftop
-        - net-tools
 
     - name: Get installed package list
       package_facts: {}

@@ -6,6 +6,7 @@
       ansible.builtin.lineinfile:
         path: "~/.bashrc"
         line: "export EDITOR=vim"
+        regexp: '^export EDITOR='
 
     - name: Copy Bash-It custom Aliases to directory
       copy:

@@ -2,3 +2,9 @@
 .*.swp
 .idea
 *.iml
+.pi-subagents/
+.venvs/
+.ansible/
+.DS_Store
+__pycache__/
+*.log

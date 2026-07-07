@@ -19,4 +19,3 @@
 ### Customizations
 - import_playbook: bash/core.yml
 - import_playbook: bash/post.yml
-- import_playbook: kde.yml

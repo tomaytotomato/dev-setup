@@ -6,7 +6,7 @@
     arch_mapping:  # Map ansible architecture {{ ansible_architecture }} names to Docker's architecture names
       x86_64: amd64
       aarch64: arm64
-    ansible_user: bruce
+    docker_user: "{{ ansible_user_id }}"
 
   tasks:
     - name: Update and upgrade all packages to the latest version
@@ -68,7 +68,7 @@
 
     - name: Add user to Docker group
       ansible.builtin.user:
-        name: "{{ ansible_user }}"
+        name: "{{ docker_user }}"
         groups: docker
         append: true
 

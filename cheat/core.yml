@@ -1,8 +1,8 @@
-- name: Postman
+- name: Install Cheat terminal helper app
   hosts: localhost
   connection: local
   become: yes
 
   tasks:
-    - name: POSTman - snap install
-      command: snap install postman
+    - name: cheat - snap install
+      command: snap install cheat

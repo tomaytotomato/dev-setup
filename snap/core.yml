@@ -17,3 +17,4 @@
       lineinfile:
         path: ~/.bashrc
         line: export PATH=$PATH:/snap/bin
+        regexp: '^export PATH=.*:/snap/bin$'

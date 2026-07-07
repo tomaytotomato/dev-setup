@@ -1,3 +1,0 @@
-- name: KDE UI Customization
-  hosts: localhost
-  connection: local
