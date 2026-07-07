@@ -69,10 +69,7 @@ jobs:
       - name: Converge (second run — idempotency)
         run: |
           set -o pipefail
-          # diagnostic: -v exposes registered stdout for tasks that
-          # still report changed=true, so we can see what defeated
-          # the changed_when filter.
-          ansible-playbook -v site.yml --tags "${CI_TAGS}" --skip-tags "${CI_SKIP_TAGS}" | tee second-run.log
+          ansible-playbook site.yml --tags "${CI_TAGS}" --skip-tags "${CI_SKIP_TAGS}" | tee second-run.log
 
       - name: Assert idempotency
         run: |

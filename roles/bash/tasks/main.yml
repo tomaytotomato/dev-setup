@@ -57,12 +57,14 @@
   when: plugins is defined
   register: plugins_result
   # bash-it prints 'X is already enabled.' for no-op. alias-completion
-  # is a known quirk — it re-enables every run because bash-it doesn't
-  # persist a toggle marker for it. Treat both as no-op.
+  # seesaws between plugins/aliases tasks (the aliases task disables
+  # alias-completion so it can re-attach to the current alias set;
+  # the next plugins task then re-enables it). Neither transition
+  # represents a real config change — treat both as no-op.
   changed_when: >-
     plugins_result.stdout_lines
       | reject('search', 'is already enabled')
-      | reject('search', '^alias-completion enabled with priority')
+      | reject('search', '^alias-completion (enabled with priority|disabled)')
       | list | length > 0
 
 - name: Install bash_it aliases for {{ user }}
@@ -71,9 +73,11 @@
   ansible.builtin.command: "/bin/bash -i -l -c \"bash-it enable alias {{ aliases | join(' ') }}\""
   when: aliases is defined
   register: aliases_result
+  # See plugins task above for the alias-completion seesaw explanation.
   changed_when: >-
     aliases_result.stdout_lines
       | reject('search', 'is already enabled')
+      | reject('search', '^alias-completion (enabled with priority|disabled)')
       | list | length > 0
 
 - name: Install bash_it completions for {{ user }}
