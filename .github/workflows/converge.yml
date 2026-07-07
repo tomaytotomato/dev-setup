@@ -69,13 +69,18 @@ jobs:
       - name: Converge (second run — idempotency)
         run: |
           set -o pipefail
-          ansible-playbook site.yml --tags "${CI_TAGS}" --skip-tags "${CI_SKIP_TAGS}" | tee second-run.log
+          # -v on the second run so we can see stdout for tasks that
+          # (mis)report changed=true; makes idempotency-drift diagnosis
+          # possible without another workflow round-trip.
+          ansible-playbook -v site.yml --tags "${CI_TAGS}" --skip-tags "${CI_SKIP_TAGS}" | tee second-run.log
 
       - name: Assert idempotency
         run: |
           # PLAY RECAP for localhost looks like:
           #   localhost : ok=42 changed=0 unreachable=0 failed=0 skipped=3 ...
-          recap=$(grep -E '^localhost' second-run.log | tail -1)
+          # ANSIBLE_FORCE_COLOR wraps 'localhost' in ANSI escapes, so strip
+          # them before matching.
+          recap=$(sed 's/\x1b\[[0-9;]*m//g' second-run.log | grep -E '^localhost' | tail -1)
           echo "Second-run recap: ${recap}"
           if [ -z "${recap}" ]; then
             echo "::error::No PLAY RECAP line found for localhost in second run"
