@@ -1,1 +1,5 @@
 * text=auto eol=lf
+*.yml    linguist-language=Ansible
+*.yaml   linguist-language=Ansible
+*.j2     linguist-language=Jinja
+*.sh     text eol=lf

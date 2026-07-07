@@ -1,0 +1,9 @@
+---
+profile: moderate
+exclude_paths:
+  - .github/
+  - .venvs/
+  - .pi-subagents/
+  - resources/
+skip_list:
+  - experimental

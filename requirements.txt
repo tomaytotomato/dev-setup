@@ -1,0 +1,3 @@
+ansible-core>=2.16,<2.19
+ansible-lint>=24.0
+yamllint>=1.35
