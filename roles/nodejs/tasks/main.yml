@@ -8,18 +8,39 @@
     chdir: "$HOME"
     creates: "$HOME/.nvm/nvm.sh"
 
+# The following tasks source nvm.sh directly rather than relying on
+# `bash -ic` and .bashrc integration. That keeps the play working on
+# fresh machines (CI runners, first-run boxes) where .bashrc has not
+# yet been touched by bash-it or the nvm installer's shell hook.
+
 - name: Test for installed NodeJS LTS
-  ansible.builtin.shell: bash -ic "nvm ls lts/*" >/dev/null
+  ansible.builtin.shell: |
+    set -o pipefail
+    export NVM_DIR="$HOME/.nvm"
+    . "$NVM_DIR/nvm.sh"
+    nvm ls 'lts/*' >/dev/null
+  args:
+    executable: /bin/bash
   register: nvm_ls
   failed_when: false
   changed_when: false
 
 - name: Install NodeJS LTS
-  ansible.builtin.command: bash -ic "nvm install lts/*"
+  ansible.builtin.shell: |
+    export NVM_DIR="$HOME/.nvm"
+    . "$NVM_DIR/nvm.sh"
+    nvm install --lts
+  args:
+    executable: /bin/bash
   when: nvm_ls.rc != 0
   changed_when: true
 
 - name: Use NodeJS LTS by default
-  ansible.builtin.command: bash -ic "nvm use --lts"
+  ansible.builtin.shell: |
+    export NVM_DIR="$HOME/.nvm"
+    . "$NVM_DIR/nvm.sh"
+    nvm use --lts
+  args:
+    executable: /bin/bash
   when: nvm_ls.rc != 0
   changed_when: true
